@@ -24,7 +24,7 @@ import com.nimbusds.jose.jwk.source.ImmutableSecret;
 public class JwtConfig {
 
     @Bean
-    SecretKey jwtSecretKey(@Value("${jwt.secret}") String secret) {
+    public SecretKey jwtSecretKey(@Value("${jwt.secret}") String secret) {
         byte[] bytes = Base64.getDecoder().decode(secret);
         if (bytes.length < 32)
             throw new IllegalStateException("jwt.secret must be at least 32 bytes (base64 encoded)");
@@ -32,12 +32,12 @@ public class JwtConfig {
     }
 
     @Bean
-    JwtEncoder jwtEncoder(SecretKey jwtSecretKey) {
+    public JwtEncoder jwtEncoder(SecretKey jwtSecretKey) {
         return new NimbusJwtEncoder(new ImmutableSecret<>(jwtSecretKey));
     }
 
     @Bean
-    JwtDecoder jwtDecoder(SecretKey jwtSecretKey) {
+    public JwtDecoder jwtDecoder(SecretKey jwtSecretKey) {
         return NimbusJwtDecoder.withSecretKey(jwtSecretKey).macAlgorithm(MacAlgorithm.HS256).build();
     }
 
