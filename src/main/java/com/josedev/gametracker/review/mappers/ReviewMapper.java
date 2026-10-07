@@ -14,7 +14,7 @@ public class ReviewMapper {
     public static void updateEntity(ReviewEntity entity, ReviewDTORequest dto) {
         entity.setRating(dto.rating());
         entity.setBody(dto.body() == null || dto.body().isBlank() ? null : dto.body().trim());
-        entity.setSpoiler(dto.spoiler());
+        entity.setSpoiler(Boolean.TRUE.equals(dto.spoiler()));
     }
 
     public static ReviewDTOResponse toDTO(ReviewEntity entity) {

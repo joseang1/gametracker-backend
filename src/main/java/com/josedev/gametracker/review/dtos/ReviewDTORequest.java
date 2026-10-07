@@ -15,6 +15,6 @@ public record ReviewDTORequest(
         @Size(max = 5000, message = "Review cannot be longer than 5000 characters")
         String body,
 
-        boolean spoiler) {
+        Boolean spoiler) {
 
 }

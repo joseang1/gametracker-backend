@@ -18,6 +18,6 @@ public record GameLogDTORequest(
         @Max(value = 100000, message = "Hours played is too high")
         Integer hoursPlayed,
 
-        boolean favorite) {
+        Boolean favorite) {
 
 }

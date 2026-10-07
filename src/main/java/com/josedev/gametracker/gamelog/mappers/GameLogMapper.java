@@ -14,7 +14,7 @@ public class GameLogMapper {
         entity.setStatus(dto.status());
         entity.setPlatform(dto.platform() == null || dto.platform().isBlank() ? null : dto.platform().trim());
         entity.setHoursPlayed(dto.hoursPlayed());
-        entity.setFavorite(dto.favorite());
+        entity.setFavorite(Boolean.TRUE.equals(dto.favorite()));
     }
 
     public static GameLogDTOResponse toDTO(GameLogEntity entity) {
