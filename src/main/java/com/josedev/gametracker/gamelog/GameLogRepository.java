@@ -15,7 +15,6 @@ public interface GameLogRepository extends JpaRepository<GameLogEntity, Long> {
 
     Optional<GameLogEntity> findByUserIdAndGameId(Long userId, Long gameId);
 
-    // @EntityGraph loads the game in the same query (avoids the N+1 problem)
     @EntityGraph(attributePaths = "game")
     Page<GameLogEntity> findByUserUsernameOrderByUpdatedAtDesc(String username, Pageable pageable);
 
@@ -26,7 +25,6 @@ public interface GameLogRepository extends JpaRepository<GameLogEntity, Long> {
     @EntityGraph(attributePaths = "game")
     Page<GameLogEntity> findByUserUsernameAndFavoriteTrueOrderByUpdatedAtDesc(String username, Pageable pageable);
 
-    // Each row: [LogStatus status, Long count]
     @Query("SELECT l.status, COUNT(l) FROM GameLogEntity l WHERE l.user.id = :userId GROUP BY l.status")
     List<Object[]> countByStatusForUser(@Param("userId") Long userId);
 

@@ -16,12 +16,10 @@ public interface InterfaceReviewService {
 
     Optional<ReviewDTOResponse> getMine(String username, Long gameId);
 
-    /** Creates the review of the user for that game, or updates it if it already exists. */
     ReviewDTOResponse save(String username, Long gameId, ReviewDTORequest dto);
 
     void deleteMine(String username, Long gameId);
 
-    /** Moderation: an admin removes any review. */
     void deleteById(Long reviewId);
 
 }

@@ -59,7 +59,6 @@ public class GameMapper {
                 entity.getSource().name());
     }
 
-    /** localId is null when the game is not stored in our database yet. RAWG rating (0-5) is scaled to 1-10. */
     public static GameSummaryDTOResponse toSummaryDTO(RawgGameDTO rawg, Long localId) {
         Double rating = rawg.rating() == null || rawg.rating() == 0 ? null : Math.round(rawg.rating() * 20) / 10.0;
         return new GameSummaryDTOResponse(localId, rawg.id(), rawg.name(), rawg.backgroundImage(),

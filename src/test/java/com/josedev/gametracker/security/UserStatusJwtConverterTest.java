@@ -38,7 +38,7 @@ class UserStatusJwtConverterTest {
         return Jwt.withTokenValue("token")
                 .header("alg", "HS256")
                 .subject(username)
-                .claim("role", "ADMIN") // ignored: role is read from the database
+                .claim("role", "ADMIN")
                 .issuedAt(Instant.now())
                 .expiresAt(Instant.now().plusSeconds(60))
                 .build();

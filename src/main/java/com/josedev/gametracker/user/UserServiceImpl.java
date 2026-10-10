@@ -44,7 +44,6 @@ public class UserServiceImpl implements InterfaceUserService {
     }
 
     private ProfileDTOResponse toProfile(UserEntity user) {
-        // Every status appears, even with 0, so the frontend always gets the same keys
         Map<String, Long> statusCounts = new LinkedHashMap<>();
         for (LogStatus status : LogStatus.values())
             statusCounts.put(status.name(), 0L);

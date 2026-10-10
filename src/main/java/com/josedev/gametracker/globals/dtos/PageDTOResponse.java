@@ -5,10 +5,6 @@ import java.util.function.Function;
 
 import org.springframework.data.domain.Page;
 
-/**
- * Stable JSON shape for paginated responses (instead of serializing Spring's Page directly).
- * page is 0-based.
- */
 public record PageDTOResponse<T>(
         List<T> content,
         int page,

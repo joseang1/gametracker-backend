@@ -16,10 +16,6 @@ import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 
 import com.nimbusds.jose.jwk.source.ImmutableSecret;
 
-/**
- * JWT signed with HMAC-SHA256 and a shared secret (jwt.secret, base64, at least 32 bytes).
- * The same key signs tokens on login and verifies them on every request.
- */
 @Configuration
 public class JwtConfig {
 

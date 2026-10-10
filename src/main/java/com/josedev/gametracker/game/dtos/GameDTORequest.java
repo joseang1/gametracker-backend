@@ -7,7 +7,6 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
-/** Body used by admins to create or edit a custom game. */
 public record GameDTORequest(
         @NotBlank(message = "Title cannot be empty")
         @Size(max = 200, message = "Title cannot be longer than 200 characters")

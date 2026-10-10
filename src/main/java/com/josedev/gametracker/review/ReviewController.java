@@ -28,8 +28,6 @@ public class ReviewController {
         this.service = service;
     }
 
-    // Public
-
     @GetMapping("reviews")
     public PageDTOResponse<ReviewDTOResponse> recent(@RequestParam(defaultValue = "0") int page) {
         return service.getRecent(page);
@@ -46,8 +44,6 @@ public class ReviewController {
             @RequestParam(defaultValue = "0") int page) {
         return service.getByUser(username, page);
     }
-
-    // Logged user
 
     @PutMapping("games/{gameId}/review")
     public ReviewDTOResponse save(@AuthenticationPrincipal Jwt jwt, @PathVariable Long gameId,

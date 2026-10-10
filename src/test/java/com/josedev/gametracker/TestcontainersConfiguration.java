@@ -6,10 +6,6 @@ import org.springframework.context.annotation.Bean;
 import org.testcontainers.mysql.MySQLContainer;
 import org.testcontainers.utility.DockerImageName;
 
-/**
- * Starts a real MySQL in Docker for integration tests (same version as compose.yaml).
- * @ServiceConnection points the datasource to the container automatically.
- */
 @TestConfiguration(proxyBeanMethods = false)
 public class TestcontainersConfiguration {
 

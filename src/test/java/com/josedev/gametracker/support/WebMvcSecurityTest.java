@@ -14,11 +14,6 @@ import com.josedev.gametracker.security.JpaUserDetailsService;
 import com.josedev.gametracker.security.UserStatusJwtConverter;
 import com.josedev.gametracker.user.UserRepository;
 
-/**
- * Loads the real security configuration in @WebMvcTest slices, so controller tests
- * also check the access rules (public / user / admin).
- * Authenticated requests are simulated with SecurityMockMvcRequestPostProcessors.jwt().
- */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @Import({ SecurityConfig.class, JwtConfig.class, UserStatusJwtConverter.class })

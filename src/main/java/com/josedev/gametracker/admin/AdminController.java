@@ -15,7 +15,6 @@ import com.josedev.gametracker.review.InterfaceReviewService;
 import com.josedev.gametracker.review.dtos.ReviewDTOResponse;
 import com.josedev.gametracker.user.dtos.UserAdminDTOResponse;
 
-/** Every endpoint here requires ROLE_ADMIN (see SecurityConfig). */
 @RestController
 @RequestMapping(path = "${api-endpoint}/admin")
 public class AdminController {

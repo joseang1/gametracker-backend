@@ -20,7 +20,6 @@ import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 
-/** A game in a user's library: one log per user and game. */
 @Entity
 @Table(name = "game_logs", uniqueConstraints = @UniqueConstraint(columnNames = { "user_id", "game_id" }))
 public class GameLogEntity {

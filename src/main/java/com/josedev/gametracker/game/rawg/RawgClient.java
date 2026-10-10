@@ -16,10 +16,6 @@ import com.josedev.gametracker.game.rawg.dtos.RawgGameDTO;
 import com.josedev.gametracker.game.rawg.dtos.RawgPageDTO;
 import com.josedev.gametracker.game.rawg.exceptions.RawgException;
 
-/**
- * DAO for the RAWG Video Games Database.
- * Results are cached in memory: the free plan allows 20.000 requests per month.
- */
 @Component
 public class RawgClient implements InterfaceRawgClient {
 
@@ -51,7 +47,6 @@ public class RawgClient implements InterfaceRawgClient {
                     .retrieve()
                     .body(RawgPageDTO.class);
         } catch (HttpClientErrorException.NotFound exception) {
-            // RAWG answers 404 when asking for a page after the last one
             return RawgPageDTO.empty();
         } catch (RestClientException exception) {
             throw new RawgException("Game catalog is temporarily unavailable");

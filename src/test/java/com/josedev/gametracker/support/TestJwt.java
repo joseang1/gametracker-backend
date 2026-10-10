@@ -5,7 +5,6 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 
-/** Shortcuts to send requests as a logged user or admin in MockMvc tests. */
 public final class TestJwt {
 
     private TestJwt() {

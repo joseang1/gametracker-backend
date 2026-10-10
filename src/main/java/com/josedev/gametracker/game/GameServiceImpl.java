@@ -49,10 +49,6 @@ public class GameServiceImpl implements InterfaceGameService {
         this.rawgClient = rawgClient;
     }
 
-    /**
-     * Catalog search: RAWG results plus our custom games (shown first, only on the first page).
-     * If RAWG is down the catalog keeps working with the custom games.
-     */
     @Override
     @Transactional(readOnly = true)
     public PageDTOResponse<GameSummaryDTOResponse> search(String search, int page) {
@@ -122,7 +118,6 @@ public class GameServiceImpl implements InterfaceGameService {
         return GameMapper.toDetailDTO(repository.save(game), getStats(id));
     }
 
-    /** Deletes the game together with every log and review that points to it. */
     @Override
     @Transactional
     public void delete(Long id) {
@@ -163,7 +158,6 @@ public class GameServiceImpl implements InterfaceGameService {
         return games.stream().map(game -> GameMapper.toSummaryDTO(game, averages.get(game.getId()))).toList();
     }
 
-    /** Links RAWG results with the games we already stored, and prefers our community rating. */
     private List<GameSummaryDTOResponse> rawgToSummaries(List<RawgGameDTO> results) {
         if (results == null || results.isEmpty())
             return List.of();

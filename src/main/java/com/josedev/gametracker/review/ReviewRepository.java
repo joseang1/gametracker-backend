@@ -25,11 +25,9 @@ public interface ReviewRepository extends JpaRepository<ReviewEntity, Long> {
     @EntityGraph(attributePaths = { "user", "game" })
     Page<ReviewEntity> findAllByOrderByCreatedAtDesc(Pageable pageable);
 
-    // Each row: [Integer rating, Long count]
     @Query("SELECT r.rating, COUNT(r) FROM ReviewEntity r WHERE r.game.id = :gameId GROUP BY r.rating")
     List<Object[]> countByRatingForGame(@Param("gameId") Long gameId);
 
-    // Each row: [Long gameId, Double average]
     @Query("SELECT r.game.id, AVG(r.rating) FROM ReviewEntity r WHERE r.game.id IN :gameIds GROUP BY r.game.id")
     List<Object[]> averageRatingForGames(@Param("gameIds") Collection<Long> gameIds);
 

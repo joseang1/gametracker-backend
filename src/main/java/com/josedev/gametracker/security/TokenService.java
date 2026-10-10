@@ -26,10 +26,6 @@ public class TokenService {
         this.expirationHours = expirationHours;
     }
 
-    /**
-     * subject = username. The role travels in the token only so the frontend can show/hide admin options;
-     * the backend always checks the current role in the database (see UserStatusJwtConverter).
-     */
     public String generateToken(UserEntity user) {
         Instant now = Instant.now();
 

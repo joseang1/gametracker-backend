@@ -77,7 +77,6 @@ class GameServiceImplTest {
                 contains("Hollow Knight Fan Remake", "Baldur's Gate 3", "Elden Ring"));
         assertThat(result.content().get(1).id(), is(equalTo(2L)));
         assertThat(result.content().get(2).id(), is(nullValue()));
-        // RAWG rating 4.5 (0-5) is converted to our 1-10 scale
         assertThat(result.content().get(2).rating(), is(equalTo(9.0)));
         assertThat(result.totalElements(), is(equalTo(3L)));
     }
@@ -153,7 +152,6 @@ class GameServiceImplTest {
 
     @Test
     void testGetStats_ShouldCalculateAverageAndDistribution() {
-        // two reviews of 10 (five stars) and one of 7 (three and a half)
         when(reviewRepository.countByRatingForGame(1L))
                 .thenReturn(List.of(new Object[] { 10, 2L }, new Object[] { 7, 1L }));
 

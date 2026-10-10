@@ -16,7 +16,6 @@ public record RegisterDTORequest(
         @Size(max = 120, message = "Email is too long")
         String email,
 
-        // BCrypt only uses the first 72 bytes
         @NotBlank(message = "Password cannot be empty")
         @Size(min = 8, max = 72, message = "Password must have between 8 and 72 characters")
         String password) {

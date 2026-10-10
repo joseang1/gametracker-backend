@@ -37,7 +37,6 @@ public class AuthController {
         return service.login(dto);
     }
 
-    // The JWT subject is the username
     @GetMapping("me")
     public UserDTOResponse me(@AuthenticationPrincipal Jwt jwt) {
         return service.getCurrentUser(jwt.getSubject());

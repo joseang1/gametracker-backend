@@ -32,7 +32,6 @@ public class GameLogController {
         this.reviewService = reviewService;
     }
 
-    // Public: a user's library. ?status=COMPLETED or ?favorites=true
     @GetMapping("users/{username}/logs")
     public PageDTOResponse<GameLogDTOResponse> byUser(@PathVariable String username,
             @RequestParam(required = false) LogStatus status,
@@ -41,7 +40,6 @@ public class GameLogController {
         return service.getByUser(username, status, favorites, page);
     }
 
-    // Logged user: log + review for one game (used to fill the "log game" form)
     @GetMapping("games/{gameId}/me")
     public MyGameEntryDTOResponse myEntry(@AuthenticationPrincipal Jwt jwt, @PathVariable Long gameId) {
         String username = jwt.getSubject();

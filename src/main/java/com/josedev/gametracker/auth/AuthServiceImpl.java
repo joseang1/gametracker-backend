@@ -34,7 +34,6 @@ public class AuthServiceImpl implements InterfaceAuthService {
         this.tokenService = tokenService;
     }
 
-    /** New accounts are always USER. Admins are created by the seeder. */
     @Override
     @Transactional
     public AuthDTOResponse register(RegisterDTORequest dto) {
@@ -51,10 +50,6 @@ public class AuthServiceImpl implements InterfaceAuthService {
         return new AuthDTOResponse(tokenService.generateToken(saved), UserMapper.toDTO(saved));
     }
 
-    /**
-     * Throws BadCredentialsException (wrong user/password) or LockedException (banned),
-     * both handled in the GlobalExceptionHandler.
-     */
     @Override
     @Transactional(readOnly = true)
     public AuthDTOResponse login(LoginDTORequest dto) {

@@ -12,10 +12,6 @@ import com.josedev.gametracker.user.Role;
 import com.josedev.gametracker.user.UserEntity;
 import com.josedev.gametracker.user.UserRepository;
 
-/**
- * Creates the initial accounts the first time the app starts (empty users table).
- * Passwords come from properties so they are hashed with BCrypt like any other user.
- */
 @Component
 public class DataSeeder implements CommandLineRunner {
 
