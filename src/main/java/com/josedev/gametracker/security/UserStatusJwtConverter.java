@@ -14,11 +14,6 @@ import org.springframework.stereotype.Component;
 import com.josedev.gametracker.user.UserEntity;
 import com.josedev.gametracker.user.UserRepository;
 
-/**
- * Runs on every request with a valid JWT. It looks the user up in the database so that:
- * - a banned user is rejected immediately, even if the token has not expired yet;
- * - the role always comes from the database, not from the token.
- */
 @Component
 public class UserStatusJwtConverter implements Converter<Jwt, AbstractAuthenticationToken> {
 

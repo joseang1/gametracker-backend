@@ -33,9 +33,6 @@ import com.josedev.gametracker.review.ReviewRepository;
 import com.josedev.gametracker.user.Role;
 import com.josedev.gametracker.user.UserEntity;
 
-/**
- * JPA slice test on an in-memory H2 database: checks custom queries, constraints and relations.
- */
 @DataJpaTest
 @ActiveProfiles("test")
 class RepositoryIntegrationTest {

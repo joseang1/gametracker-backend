@@ -7,7 +7,6 @@ import com.josedev.gametracker.game.GameSource;
 import com.josedev.gametracker.user.Role;
 import com.josedev.gametracker.user.UserEntity;
 
-/** Builders for entities reused across unit tests. */
 public final class TestData {
 
     private TestData() {

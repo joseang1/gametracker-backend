@@ -5,11 +5,6 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-/**
- * Game as returned by RAWG. Lists (/games) do not include description or developers,
- * the detail endpoint (/games/{id}) does.
- * https://api.rawg.io/docs/
- */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record RawgGameDTO(
         Long id,

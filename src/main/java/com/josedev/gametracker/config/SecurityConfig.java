@@ -24,12 +24,6 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import com.josedev.gametracker.security.JpaUserDetailsService;
 import com.josedev.gametracker.security.UserStatusJwtConverter;
 
-/**
- * Stateless REST security:
- * - Login/register are public and return a JWT.
- * - Every other request sends "Authorization: Bearer <token>".
- * - Guests can read (games, reviews, profiles); writing needs an account; moderation needs ADMIN.
- */
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
@@ -43,21 +37,16 @@ public class SecurityConfig {
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http, UserStatusJwtConverter jwtConverter) throws Exception {
         http
-                // CSRF protects cookie sessions; with Bearer tokens in a header it is not needed
                 .csrf(csrf -> csrf.disable())
                 .cors(withDefaults())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        // Public: account
                         .requestMatchers(HttpMethod.POST, endpoint + "/auth/register", endpoint + "/auth/login").permitAll()
-                        // Admin only
                         .requestMatchers(endpoint + "/admin/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, endpoint + "/games").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, endpoint + "/games/*").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, endpoint + "/games/*").hasRole("ADMIN")
-                        // Personal data of the logged user (must go before the public GET rules)
                         .requestMatchers(HttpMethod.GET, endpoint + "/games/*/me").authenticated()
-                        // Public: read only catalog, reviews and profiles
                         .requestMatchers(HttpMethod.GET,
                                 endpoint + "/games", endpoint + "/games/**",
                                 endpoint + "/reviews", endpoint + "/reviews/**",
@@ -74,7 +63,6 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    // Used by the login endpoint to check username + password against the database
     @Bean
     AuthenticationManager authenticationManager(JpaUserDetailsService userDetailsService,
             PasswordEncoder passwordEncoder) {

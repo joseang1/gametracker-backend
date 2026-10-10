@@ -9,14 +9,12 @@ import com.josedev.gametracker.globals.dtos.PageDTOResponse;
 
 public interface InterfaceGameService {
 
-    /** page is 0-based. */
     PageDTOResponse<GameSummaryDTOResponse> search(String search, int page);
 
     List<GameSummaryDTOResponse> getTrending();
 
     GameDetailDTOResponse getById(Long id);
 
-    /** Returns the stored game, importing it from RAWG the first time. */
     GameDetailDTOResponse getOrImportByRawgId(Long rawgId);
 
     GameDetailDTOResponse create(GameDTORequest dto);

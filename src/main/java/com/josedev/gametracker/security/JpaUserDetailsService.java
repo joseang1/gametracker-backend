@@ -9,10 +9,6 @@ import org.springframework.stereotype.Service;
 import com.josedev.gametracker.user.UserEntity;
 import com.josedev.gametracker.user.UserRepository;
 
-/**
- * Loads users from the database for the login (username + password).
- * A banned user is returned as "locked", so Spring Security rejects the login with LockedException.
- */
 @Service
 public class JpaUserDetailsService implements UserDetailsService {
 

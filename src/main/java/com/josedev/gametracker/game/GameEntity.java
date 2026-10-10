@@ -22,7 +22,6 @@ public class GameEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // Only set for games imported from RAWG
     @Column(unique = true)
     private Long rawgId;
 
@@ -37,7 +36,6 @@ public class GameEntity {
 
     private LocalDate releaseDate;
 
-    // Comma separated values, e.g. "Action, RPG"
     @Column(length = 300)
     private String genres;
 

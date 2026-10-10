@@ -24,14 +24,12 @@ public class GlobalExceptionHandler {
 
     private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
-    // Business exceptions of every feature (not found, conflict, ...)
     @ExceptionHandler(ApiException.class)
     public ResponseEntity<ErrorDTOResponse> handleApiException(ApiException exception) {
         HttpStatus status = exception.getStatus();
         return ResponseEntity.status(status).body(ErrorDTOResponse.of(status.value(), exception.getMessage()));
     }
 
-    // Bean validation (@Valid) - returns one message per invalid field
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorDTOResponse> handleValidation(MethodArgumentNotValidException exception) {
         Map<String, String> errors = new LinkedHashMap<>();
@@ -46,7 +44,6 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(ErrorDTOResponse.of(400, "Malformed request"));
     }
 
-    // Login errors
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<ErrorDTOResponse> handleBadCredentials(BadCredentialsException exception) {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)

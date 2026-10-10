@@ -23,11 +23,6 @@ import com.jayway.jsonpath.JsonPath;
 import com.josedev.gametracker.TestcontainersConfiguration;
 import com.josedev.gametracker.game.rawg.InterfaceRawgClient;
 
-/**
- * Full application + real MySQL (Testcontainers) + real security with real JWTs.
- * Only the external RAWG API is mocked.
- * Requires Docker running.
- */
 @SpringBootTest
 @AutoConfigureMockMvc
 @Import(TestcontainersConfiguration.class)
@@ -55,7 +50,6 @@ class UserJourneyIntegrationTest {
 
     @Test
     void testFullJourney_RegisterLogReviewAndModeration() throws Exception {
-        // 1. A guest registers and receives a token
         String registerBody = mockMvc.perform(post("/api/v1/auth/register")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"username\":\"player1\",\"email\":\"player1@mail.com\",\"password\":\"password123\"}"))
@@ -65,7 +59,6 @@ class UserJourneyIntegrationTest {
         String playerToken = JsonPath.read(registerBody, "$.token");
         Integer playerId = JsonPath.read(registerBody, "$.user.id");
 
-        // 2. The seeded admin creates a custom game
         String adminToken = login("admin", "admin1234");
         String gameBody = mockMvc.perform(post("/api/v1/games")
                 .header("Authorization", bearer(adminToken))
@@ -75,14 +68,12 @@ class UserJourneyIntegrationTest {
                 .andReturn().getResponse().getContentAsString();
         Integer gameId = JsonPath.read(gameBody, "$.id");
 
-        // 3. A normal user cannot create games
         mockMvc.perform(post("/api/v1/games")
                 .header("Authorization", bearer(playerToken))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"title\":\"Fake\"}"))
                 .andExpect(status().isForbidden());
 
-        // 4. The player logs the game and writes a review
         mockMvc.perform(put("/api/v1/games/" + gameId + "/log")
                 .header("Authorization", bearer(playerToken))
                 .contentType(MediaType.APPLICATION_JSON)
@@ -98,7 +89,6 @@ class UserJourneyIntegrationTest {
                 .andReturn().getResponse().getContentAsString();
         Integer reviewId = JsonPath.read(reviewBody, "$.id");
 
-        // 5. Guests see the stats, the review and the profile
         mockMvc.perform(get("/api/v1/games/" + gameId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.stats.reviewCount", equalTo(1)))
@@ -114,7 +104,6 @@ class UserJourneyIntegrationTest {
                 .andExpect(jsonPath("$.log.status", equalTo("COMPLETED")))
                 .andExpect(jsonPath("$.review.rating", equalTo(9)));
 
-        // 6. The admin bans the player: the old token stops working and login is refused
         mockMvc.perform(patch("/api/v1/admin/users/" + playerId + "/ban").header("Authorization", bearer(adminToken)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.banned", equalTo(true)));
@@ -127,7 +116,6 @@ class UserJourneyIntegrationTest {
                 .content("{\"username\":\"player1\",\"password\":\"password123\"}"))
                 .andExpect(status().isForbidden());
 
-        // 7. The admin removes the review
         mockMvc.perform(delete("/api/v1/admin/reviews/" + reviewId).header("Authorization", bearer(adminToken)))
                 .andExpect(status().isNoContent());
 

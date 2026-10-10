@@ -21,9 +21,6 @@ import com.josedev.gametracker.globals.dtos.PageDTOResponse;
 
 import jakarta.validation.Valid;
 
-/**
- * GET endpoints are public. POST, PUT and DELETE require ADMIN (see SecurityConfig).
- */
 @RestController
 @RequestMapping(path = "${api-endpoint}/games")
 public class GameController {

@@ -26,7 +26,6 @@ import com.josedev.gametracker.game.rawg.dtos.RawgGameDTO;
 import com.josedev.gametracker.game.rawg.dtos.RawgPageDTO;
 import com.josedev.gametracker.game.rawg.exceptions.RawgException;
 
-/** Simulates the RAWG API with MockRestServiceServer: no real HTTP calls are made. */
 class RawgClientTest {
 
     private static final String BASE_URL = "https://api.rawg.io/api";

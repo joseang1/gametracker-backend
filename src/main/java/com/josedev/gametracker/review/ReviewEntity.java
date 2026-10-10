@@ -18,10 +18,6 @@ import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 
-/**
- * Rating + optional written review. One review per user and game.
- * rating uses half stars: 1 = half a star ... 10 = five stars.
- */
 @Entity
 @Table(name = "reviews", uniqueConstraints = @UniqueConstraint(columnNames = { "user_id", "game_id" }))
 public class ReviewEntity {
