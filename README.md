@@ -1,110 +1,110 @@
 # GameTracker · Backend
 
-REST API for **GameTracker**, a Letterboxd-style diary for video games: log the games you play, rate them with half stars, write reviews and follow what the community is playing.
+API REST de **GameTracker**, un diario de videojuegos al estilo de Letterboxd: registra los juegos a los que juegas, puntúalos con medias estrellas, escribe reseñas y descubre a qué está jugando la comunidad.
 
-Built with **Spring Boot 4** and **Java 21**, secured with **Spring Security + JWT**, persisted in **MySQL 8.4 (Docker)** and fed with real game data from the **[RAWG](https://rawg.io) API**.
+Construida con **Spring Boot 4** y **Java 21**, protegida con **Spring Security + JWT**, con persistencia en **MySQL 8.4 (Docker)** y datos reales de juegos de la **API de [RAWG](https://rawg.io)**.
 
 | | |
 |---|---|
-| Frontend repository | [joseang1/gametracker-frontend](https://github.com/joseang1/gametracker-frontend) |
-| Presentation | _link added before submission_ |
-| Project board | JIRA · 3 sprints (backend, frontend, docs & delivery) |
+| Repositorio del frontend | [joseang1/gametracker-frontend](https://github.com/joseang1/gametracker-frontend) |
+| Presentación | _enlace pendiente de añadir antes de la entrega_ |
+| Tablero del proyecto | JIRA · 3 sprints (backend, frontend, documentación y entrega) |
 
 ---
 
-## Table of contents
+## Índice
 
-1. [Features](#features)
-2. [Tech stack](#tech-stack)
-3. [Architecture](#architecture)
-4. [Diagrams](#diagrams)
-5. [Getting started](#getting-started)
-6. [API reference](#api-reference)
-7. [Security](#security)
+1. [Funcionalidades](#funcionalidades)
+2. [Stack tecnológico](#stack-tecnológico)
+3. [Arquitectura](#arquitectura)
+4. [Diagramas](#diagramas)
+5. [Puesta en marcha](#puesta-en-marcha)
+6. [Referencia de la API](#referencia-de-la-api)
+7. [Seguridad](#seguridad)
 8. [Testing](#testing)
-9. [Workflow](#workflow)
+9. [Metodología de trabajo](#metodología-de-trabajo)
 
 ---
 
-## Features
+## Funcionalidades
 
-| Role | Can do |
+| Rol | Qué puede hacer |
 |---|---|
-| **Guest** | Browse and search the catalog, see trending games, read game pages, reviews and public profiles |
-| **User** | Everything a guest can, plus: log games with a status (playing, completed, backlog, wishlist, dropped), platform, hours and favourite; rate (1–10, shown as half stars) and review games with spoiler warnings; edit their profile |
-| **Admin** | Everything a user can, plus: site statistics, ban and unban players, delete reviews, create, edit and delete games |
+| **Invitado** | Explorar y buscar en el catálogo, ver los juegos en tendencia, leer las fichas de los juegos, las reseñas y los perfiles públicos |
+| **Usuario** | Todo lo que puede un invitado, y además: registrar juegos con un estado (jugando, completado, pendiente, lista de deseos, abandonado), plataforma, horas y favorito; puntuar (de 1 a 10, mostrado como medias estrellas) y reseñar juegos con aviso de spoilers; editar su perfil |
+| **Admin** | Todo lo que puede un usuario, y además: estadísticas del sitio, banear y desbanear jugadores, borrar reseñas, crear, editar y borrar juegos |
 
-Game data comes from RAWG. The backend **proxies and caches** RAWG, and imports a game into its own database the first time someone opens it, so reviews and logs always point to our own ids.
+Los datos de los juegos vienen de RAWG. El backend **hace de intermediario y guarda en caché** las respuestas de RAWG, e importa un juego a su propia base de datos la primera vez que alguien lo abre, de modo que las reseñas y los registros siempre apuntan a nuestros propios ids.
 
 ---
 
-## Tech stack
+## Stack tecnológico
 
-| Area | Technology |
+| Área | Tecnología |
 |---|---|
-| Language / framework | Java 21 · Spring Boot 4.1 (Web MVC, Data JPA, Validation, Cache, Actuator) |
-| Security | Spring Security · OAuth2 Resource Server (JWT, HS256) · BCrypt |
-| Database | MySQL 8.4 in Docker Compose · H2 in-memory profile for quick runs |
-| External API | RAWG Video Games Database (Spring `RestClient` + in-memory cache) |
+| Lenguaje / framework | Java 21 · Spring Boot 4.1 (Web MVC, Data JPA, Validation, Cache, Actuator) |
+| Seguridad | Spring Security · OAuth2 Resource Server (JWT, HS256) · BCrypt |
+| Base de datos | MySQL 8.4 con Docker Compose · perfil H2 en memoria para pruebas rápidas |
+| API externa | RAWG Video Games Database (`RestClient` de Spring + caché en memoria) |
 | Tests | JUnit 5 · Mockito · Hamcrest · MockMvc (`@WebMvcTest`) · `@DataJpaTest` · Testcontainers (MySQL) · `MockRestServiceServer` |
 | Build | Maven Wrapper |
 
 ---
 
-## Architecture
+## Arquitectura
 
-The code is organised **by feature**. Each feature has its own controller, service (interface + implementation), repository, entity, DTOs, mapper and exceptions.
+El código está organizado **por funcionalidad**. Cada funcionalidad tiene su propio controller, service (interfaz + implementación), repository, entidad, DTO, mapper y excepciones.
 
 ```
 com.josedev.gametracker
-├── auth       register, login, current user
-├── user       profiles, user entity and roles
-├── game       catalog, trending, RAWG import, admin CRUD
-│   └── rawg   RAWG client and its DTOs
-├── review     reviews and ratings
-├── gamelog    personal library (status, platform, hours, favourite)
-├── admin      statistics and moderation
-├── security   JWT creation, ban check, user lookup
-├── config     security, JWT, RAWG, seed data
-└── globals    global exception handler, base exception, page DTO
+├── auth       registro, login, usuario actual
+├── user       perfiles, entidad de usuario y roles
+├── game       catálogo, tendencias, importación de RAWG, CRUD de admin
+│   └── rawg   cliente de RAWG y sus DTO
+├── review     reseñas y puntuaciones
+├── gamelog    biblioteca personal (estado, plataforma, horas, favorito)
+├── admin      estadísticas y moderación
+├── security   creación de JWT, comprobación de baneo, búsqueda de usuario
+├── config     seguridad, JWT, RAWG, datos iniciales
+└── globals    handler global de excepciones, excepción base, DTO de página
 ```
 
-Every request follows the same path:
+Todas las peticiones siguen el mismo camino:
 
 ```mermaid
 flowchart LR
-    Client([Vue frontend]) -->|HTTP + JWT| Filter[Spring Security<br/>JWT filter + ban check]
-    Filter --> Controller[Controller<br/>validates DTOs]
-    Controller --> Service[Service<br/>business rules, transactions]
+    Client([Frontend Vue]) -->|HTTP + JWT| Filter[Spring Security<br/>filtro JWT + comprobación de baneo]
+    Filter --> Controller[Controller<br/>valida los DTO]
+    Controller --> Service[Service<br/>reglas de negocio, transacciones]
     Service --> Repository[Repository<br/>Spring Data JPA]
     Repository --> DB[(MySQL)]
-    Service --> Rawg[RawgClient<br/>cached]
-    Rawg --> RAWG([RAWG API])
-    Controller -. errors .-> Handler[GlobalExceptionHandler<br/>uniform JSON errors]
+    Service --> Rawg[RawgClient<br/>con caché]
+    Rawg --> RAWG([API de RAWG])
+    Controller -. errores .-> Handler[GlobalExceptionHandler<br/>errores JSON uniformes]
 ```
 
-- **DTOs as Java records** (`XDTORequest` / `XDTOResponse`) with Jakarta validation. Entities never leave the backend.
-- **Static mappers** (`toEntity` / `toDTO`) convert between DTOs and entities.
-- **Errors:** each feature throws its own exception extending `ApiException`, which carries an HTTP status. `GlobalExceptionHandler` turns them into `{ status, message, errors, timestamp }`, with one message per invalid field for validation errors.
+- **DTO como records de Java** (`XDTORequest` / `XDTOResponse`) con validación de Jakarta. Las entidades nunca salen del backend.
+- **Mappers estáticos** (`toEntity` / `toDTO`) convierten entre DTO y entidades.
+- **Errores:** cada funcionalidad lanza su propia excepción que extiende `ApiException`, que lleva un código HTTP. `GlobalExceptionHandler` las convierte en `{ status, message, errors, timestamp }`, con un mensaje por cada campo inválido en los errores de validación.
 
 ---
 
-## Diagrams
+## Diagramas
 
-### Database (ER)
+### Base de datos (entidad-relación)
 
 ```mermaid
 erDiagram
-    USERS ||--o{ REVIEWS : writes
-    USERS ||--o{ GAME_LOGS : keeps
-    GAMES ||--o{ REVIEWS : receives
-    GAMES ||--o{ GAME_LOGS : appears_in
+    USERS ||--o{ REVIEWS : escribe
+    USERS ||--o{ GAME_LOGS : registra
+    GAMES ||--o{ REVIEWS : recibe
+    GAMES ||--o{ GAME_LOGS : aparece_en
 
     USERS {
         bigint id PK
         varchar(30) username UK
         varchar(120) email UK
-        varchar password "BCrypt hash"
+        varchar password "hash BCrypt"
         varchar(20) role "USER | ADMIN"
         boolean banned
         varchar(300) bio
@@ -113,13 +113,13 @@ erDiagram
     }
     GAMES {
         bigint id PK
-        bigint rawg_id UK "null for custom games"
+        bigint rawg_id UK "null en juegos propios"
         varchar(200) title
         varchar(500) cover_url
         text description
         date release_date
-        varchar(300) genres "comma separated"
-        varchar(500) platforms "comma separated"
+        varchar(300) genres "separados por comas"
+        varchar(500) platforms "separadas por comas"
         varchar(200) developer
         varchar(10) source "RAWG | CUSTOM"
         datetime created_at
@@ -128,8 +128,8 @@ erDiagram
         bigint id PK
         bigint user_id FK
         bigint game_id FK
-        int rating "1-10, half stars"
-        varchar(5000) body "optional"
+        int rating "1-10, medias estrellas"
+        varchar(5000) body "opcional"
         boolean spoiler
         datetime created_at
         datetime updated_at
@@ -146,9 +146,9 @@ erDiagram
     }
 ```
 
-`reviews` and `game_logs` each have a **unique (user_id, game_id)** constraint: one review and one log per game per user. Saving again updates the existing row.
+`reviews` y `game_logs` tienen cada una una restricción **unique (user_id, game_id)**: una reseña y un registro por juego y usuario. Si se vuelve a guardar, se actualiza la fila existente.
 
-### Domain classes
+### Clases del dominio
 
 ```mermaid
 classDiagram
@@ -210,16 +210,16 @@ classDiagram
         WISHLIST
         DROPPED
     }
-    UserEntity "1" --> "*" ReviewEntity : writes
-    UserEntity "1" --> "*" GameLogEntity : keeps
-    GameEntity "1" --> "*" ReviewEntity : receives
-    GameEntity "1" --> "*" GameLogEntity : appears in
+    UserEntity "1" --> "*" ReviewEntity : escribe
+    UserEntity "1" --> "*" GameLogEntity : registra
+    GameEntity "1" --> "*" ReviewEntity : recibe
+    GameEntity "1" --> "*" GameLogEntity : aparece en
     UserEntity ..> Role
     GameEntity ..> GameSource
     GameLogEntity ..> LogStatus
 ```
 
-### Layers of a feature (example: reviews)
+### Capas de una funcionalidad (ejemplo: reseñas)
 
 ```mermaid
 classDiagram
@@ -254,15 +254,15 @@ classDiagram
 
 ---
 
-## Getting started
+## Puesta en marcha
 
-### Requirements
+### Requisitos
 
 - **Java 21**
-- **Docker Desktop** (for MySQL and for the integration tests)
-- A free **RAWG API key**: sign up at [rawg.io/apidocs](https://rawg.io/apidocs)
+- **Docker Desktop** (para MySQL y para los tests de integración)
+- Una **API key de RAWG** gratuita: regístrate en [rawg.io/apidocs](https://rawg.io/apidocs)
 
-### 1. Clone and configure
+### 1. Clonar y configurar
 
 ```bash
 git clone https://github.com/joseang1/gametracker-backend.git
@@ -270,88 +270,88 @@ cd gametracker-backend
 cp .env.example .env
 ```
 
-Open `.env` and paste your key:
+Abre `.env` y pega tu clave:
 
 ```
-RAWG_API_KEY=your_key_here
+RAWG_API_KEY=tu_clave_aqui
 ```
 
-`.env` is ignored by git. Spring loads it automatically through `spring.config.import=optional:file:.env[.properties]`.
+`.env` está ignorado por git. Spring lo carga automáticamente mediante `spring.config.import=optional:file:.env[.properties]`.
 
-### 2. Run
+### 2. Arrancar
 
-**With MySQL (default).** Start Docker Desktop, then:
+**Con MySQL (por defecto).** Abre Docker Desktop y después:
 
 ```bash
 ./mvnw spring-boot:run
 ```
 
-Spring Boot's Docker Compose support starts the MySQL container from `compose.yaml` (port **3307**) on its own. You can also run `GametrackerApp.java` from your IDE.
+El soporte de Docker Compose de Spring Boot arranca por sí solo el contenedor de MySQL definido en `compose.yaml` (puerto **3307**). También puedes ejecutar `GametrackerApp.java` desde el IDE.
 
-**Without Docker** (in-memory H2, data is lost on restart):
+**Sin Docker** (H2 en memoria, los datos se pierden al reiniciar):
 
 ```bash
 SPRING_PROFILES_ACTIVE=h2 ./mvnw spring-boot:run
 ```
 
-The API is then available at **http://localhost:8080/api/v1**.
+La API queda disponible en **http://localhost:8080/api/v1**.
 
-### Demo accounts
+### Cuentas de demostración
 
-Created on the first start, when the users table is empty:
+Se crean en el primer arranque, cuando la tabla de usuarios está vacía:
 
-| Username | Password | Role |
+| Usuario | Contraseña | Rol |
 |---|---|---|
 | `admin` | `admin1234` | ADMIN |
 | `demo` | `demo1234` | USER |
 
-### Configuration
+### Configuración
 
-| Variable | Default | Purpose |
+| Variable | Valor por defecto | Para qué sirve |
 |---|---|---|
-| `RAWG_API_KEY` | _(empty)_ | RAWG key. Without it, search and trending return empty results |
-| `SPRING_PROFILES_ACTIVE` | `mysql` | `mysql` or `h2` |
-| `JWT_SECRET` | development key | Base64 secret, 32+ bytes. **Change it outside local development** |
-| `CORS_ORIGINS` | `http://localhost:5173` | Allowed frontend origins, comma separated |
-| `ADMIN_PASSWORD` / `DEMO_PASSWORD` | `admin1234` / `demo1234` | Passwords for the seeded accounts |
+| `RAWG_API_KEY` | _(vacía)_ | Clave de RAWG. Sin ella, la búsqueda y las tendencias devuelven resultados vacíos |
+| `SPRING_PROFILES_ACTIVE` | `mysql` | `mysql` o `h2` |
+| `JWT_SECRET` | clave de desarrollo | Secreto en Base64 de 32 bytes o más. **Cámbialo fuera del entorno local** |
+| `CORS_ORIGINS` | `http://localhost:5173` | Orígenes del frontend permitidos, separados por comas |
+| `ADMIN_PASSWORD` / `DEMO_PASSWORD` | `admin1234` / `demo1234` | Contraseñas de las cuentas iniciales |
 
 ---
 
-## API reference
+## Referencia de la API
 
-Base URL: `/api/v1`. 🔓 public · 👤 logged user · 🛡️ admin.
+URL base: `/api/v1`. Acceso: **Público** (sin cuenta) · **Usuario** (con sesión iniciada) · **Admin**.
 
-| Method | Endpoint | Access | Description |
+| Método | Endpoint | Acceso | Descripción |
 |---|---|---|---|
-| POST | `/auth/register` | 🔓 | Create an account, returns `{ token, user }` |
-| POST | `/auth/login` | 🔓 | Log in, returns `{ token, user }` |
-| GET | `/auth/me` | 👤 | Current user |
-| GET | `/games?search=&page=` | 🔓 | Search the catalog (RAWG + custom games), 20 per page |
-| GET | `/games/trending` | 🔓 | 12 trending games |
-| GET | `/games/{id}` | 🔓 | Game details with rating stats |
-| GET | `/games/rawg/{rawgId}` | 🔓 | Game details by RAWG id, imported on first visit |
-| POST | `/games` | 🛡️ | Create a custom game |
-| PUT | `/games/{id}` | 🛡️ | Edit a game |
-| DELETE | `/games/{id}` | 🛡️ | Delete a game with its reviews and logs |
-| GET | `/games/{gameId}/me` | 👤 | My log and review for a game |
-| PUT | `/games/{gameId}/log` | 👤 | Create or update my log |
-| DELETE | `/games/{gameId}/log` | 👤 | Remove the game from my library |
-| GET | `/games/{gameId}/reviews?page=` | 🔓 | Reviews of a game |
-| PUT | `/games/{gameId}/review` | 👤 | Create or update my review |
-| DELETE | `/games/{gameId}/review` | 👤 | Delete my review |
-| GET | `/reviews?page=` | 🔓 | Most recent reviews |
-| GET | `/users/{username}` | 🔓 | Public profile with stats |
-| PUT | `/users/me` | 👤 | Edit my bio and avatar |
-| GET | `/users/{username}/logs?status=&favorites=&page=` | 🔓 | A user's library |
-| GET | `/users/{username}/reviews?page=` | 🔓 | A user's reviews |
-| GET | `/admin/stats` | 🛡️ | Site statistics |
-| GET | `/admin/users?search=&page=` | 🛡️ | Search players |
-| PATCH | `/admin/users/{id}/ban` | 🛡️ | Ban a player (admins cannot be banned) |
-| PATCH | `/admin/users/{id}/unban` | 🛡️ | Unban a player |
-| GET | `/admin/reviews?page=` | 🛡️ | Reviews to moderate |
-| DELETE | `/admin/reviews/{id}` | 🛡️ | Delete any review |
+| POST | `/auth/register` | Público | Crea una cuenta, devuelve `{ token, user }` |
+| POST | `/auth/login` | Público | Inicia sesión, devuelve `{ token, user }` |
+| GET | `/auth/me` | Usuario | Usuario actual |
+| GET | `/games?search=&page=` | Público | Busca en el catálogo (RAWG + juegos propios), 20 por página |
+| GET | `/games/trending` | Público | 12 juegos en tendencia |
+| GET | `/games/{id}` | Público | Ficha del juego con estadísticas de puntuación |
+| GET | `/games/rawg/{rawgId}` | Público | Ficha del juego por id de RAWG, importado en la primera visita |
+| POST | `/games` | Admin | Crea un juego propio |
+| PUT | `/games/{id}` | Admin | Edita un juego |
+| DELETE | `/games/{id}` | Admin | Borra un juego con sus reseñas y registros |
+| GET | `/games/{gameId}/me` | Usuario | Mi registro y mi reseña de un juego |
+| PUT | `/games/{gameId}/log` | Usuario | Crea o actualiza mi registro |
+| DELETE | `/games/{gameId}/log` | Usuario | Quita el juego de mi biblioteca |
+| GET | `/games/{gameId}/reviews?page=` | Público | Reseñas de un juego |
+| PUT | `/games/{gameId}/review` | Usuario | Crea o actualiza mi reseña |
+| DELETE | `/games/{gameId}/review` | Usuario | Borra mi reseña |
+| GET | `/reviews?page=` | Público | Reseñas más recientes |
+| GET | `/users/{username}` | Público | Perfil público con estadísticas |
+| PUT | `/users/me` | Usuario | Edita mi bio y mi avatar |
+| GET | `/users/{username}/logs?status=&favorites=&page=` | Público | Biblioteca de un usuario |
+| GET | `/users/{username}/reviews?page=` | Público | Reseñas de un usuario |
+| GET | `/admin/stats` | Admin | Estadísticas del sitio |
+| GET | `/admin/users?search=&page=` | Admin | Busca jugadores |
+| PATCH | `/admin/users/{id}/ban` | Admin | Banea a un jugador (los admins no se pueden banear) |
+| PATCH | `/admin/users/{id}/unban` | Admin | Desbanea a un jugador |
+| GET | `/admin/reviews?page=` | Admin | Reseñas para moderar |
+| DELETE | `/admin/reviews/{id}` | Admin | Borra cualquier reseña |
 
-Every error has the same shape:
+Todos los errores tienen el mismo formato:
 
 ```json
 { "status": 400, "message": "Validation failed", "errors": { "email": "Email is not valid" }, "timestamp": "..." }
@@ -359,13 +359,13 @@ Every error has the same shape:
 
 ---
 
-## Security
+## Seguridad
 
-- **Stateless JWT.** Login and register return a token signed with **HS256**. The client sends it as `Authorization: Bearer <token>`. It expires after 24 hours.
-- **Passwords** are hashed with **BCrypt**.
-- **Role rules** live in `SecurityConfig`: reading is public, writing needs an account, moderation needs `ADMIN`.
-- **Ban check on every request.** `UserStatusJwtConverter` loads the user from the database for each request, so a banned user is rejected immediately even with a valid token, and the role always comes from the database rather than from the token.
-- **CSRF disabled** because there are no cookie sessions. **CORS** only allows the configured frontend origin.
+- **JWT sin estado.** El login y el registro devuelven un token firmado con **HS256**. El cliente lo envía como `Authorization: Bearer <token>`. Caduca a las 24 horas.
+- **Las contraseñas** se guardan cifradas con **BCrypt**.
+- **Las reglas por rol** están en `SecurityConfig`: leer es público, escribir requiere cuenta y moderar requiere `ADMIN`.
+- **Comprobación de baneo en cada petición.** `UserStatusJwtConverter` carga el usuario de la base de datos en cada petición, así que un usuario baneado se rechaza al momento aunque tenga un token válido, y el rol siempre sale de la base de datos y no del token.
+- **CSRF desactivado** porque no hay sesiones con cookies. **CORS** solo permite el origen del frontend configurado.
 
 ---
 
@@ -375,25 +375,25 @@ Every error has the same shape:
 ./mvnw test
 ```
 
-**103 tests** in four layers. Docker must be running for the Testcontainers tests.
+**103 tests** en cuatro niveles. Docker tiene que estar en marcha para los tests con Testcontainers.
 
-| Layer | Tools | What it proves |
+| Nivel | Herramientas | Qué demuestra |
 |---|---|---|
-| Unit | JUnit 5 · Mockito · Hamcrest | Service and mapper logic, JWT creation, ban check |
-| Web slice | `@WebMvcTest` · MockMvc | Validation, status codes and role rules of every controller, with the real security configuration |
-| Repository | `@DataJpaTest` | Custom queries and unique constraints |
-| Integration | `@SpringBootTest` · **Testcontainers MySQL 8.4** | A full journey on a real database: admin creates a game → a player registers, logs and reviews it → stats and profile update → admin bans the player (their token stops working, login is refused) and deletes the review → a tampered token is rejected |
+| Unitarios | JUnit 5 · Mockito · Hamcrest | Lógica de services y mappers, creación de JWT, comprobación de baneo |
+| Capa web | `@WebMvcTest` · MockMvc | Validación, códigos de estado y reglas por rol de cada controller, con la configuración de seguridad real |
+| Repository | `@DataJpaTest` | Consultas propias y restricciones unique |
+| Integración | `@SpringBootTest` · **Testcontainers MySQL 8.4** | Un recorrido completo sobre una base de datos real: el admin crea un juego → un jugador se registra, lo añade a su biblioteca y lo reseña → las estadísticas y el perfil se actualizan → el admin banea al jugador (su token deja de funcionar y el login se rechaza) y borra la reseña → un token manipulado se rechaza |
 
-The RAWG client is tested with `MockRestServiceServer`, so tests never call the real API.
-
----
-
-## Workflow
-
-- **Branches:** `main` holds the delivered version. `dev` is the integration branch. Each story is built on its own `feature/`, `fix/`, `test/` or `chore/` branch and merged into `dev` with `--no-ff`.
-- **Commits** follow [Conventional Commits](https://www.conventionalcommits.org/) (`feat`, `fix`, `test`, `chore`, `docs`, `refactor`).
-- **Planning** in JIRA: epics per feature, stories per screen or endpoint, three sprints.
+El cliente de RAWG se testea con `MockRestServiceServer`, así que los tests nunca llaman a la API real.
 
 ---
 
-Made by **Jose Ángel Peña Díaz** as the final project of the Factoría F5 · P5 Digital Academy full-stack bootcamp. Game data provided by [RAWG](https://rawg.io).
+## Metodología de trabajo
+
+- **Ramas:** `main` contiene la versión entregada. `dev` es la rama de integración. Cada historia se desarrolla en su propia rama `feature/`, `fix/`, `test/` o `chore/` y se fusiona en `dev` con `--no-ff`.
+- **Commits** siguiendo [Conventional Commits](https://www.conventionalcommits.org/) (`feat`, `fix`, `test`, `chore`, `docs`, `refactor`).
+- **Planificación** en JIRA: épicas por funcionalidad, historias por pantalla o endpoint, tres sprints.
+
+---
+
+Hecho por **Jose Ángel Peña Díaz** como proyecto final del bootcamp full-stack de Factoría F5 · P5 Digital Academy. Datos de juegos proporcionados por [RAWG](https://rawg.io).
