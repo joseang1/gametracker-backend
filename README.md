@@ -7,7 +7,7 @@ Construida con **Spring Boot 4** y **Java 21**, protegida con **Spring Security 
 | | |
 |---|---|
 | Repositorio del frontend | [joseang1/gametracker-frontend](https://github.com/joseang1/gametracker-frontend) |
-| Presentación | _enlace pendiente de añadir antes de la entrega_ |
+| Presentación | [Google Slides](https://docs.google.com/presentation/d/1nwkDyN_02emrODJNp7e_32V8QGGp0NmS/edit?usp=sharing) |
 | Tablero del proyecto | JIRA · 3 sprints (backend, frontend, documentación y entrega) |
 
 ---
